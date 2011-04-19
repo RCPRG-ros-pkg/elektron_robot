@@ -24,10 +24,11 @@
                izz="1.0" />
     </inertial>
     
+        <!--<box size="0.38 0.28 0.20" />-->
     <visual>
       <origin xyz="-0.0 0 0.115" rpy="0 0 0" />
       <geometry>
-        <box size="0.38 0.28 0.20" />
+        <mesh filename="package://elektron_defs/meshes/elektron_body.blend"/>
       </geometry>
     </visual>
 
