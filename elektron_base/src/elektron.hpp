@@ -91,8 +91,8 @@ private:
 	tsetvel setvel;
 	tgetdata getdata;
 
-	int llpos;
-	int lrpos;
+	double llpos;
+	double lrpos;
 
 	double xpos;
 	double ypos;

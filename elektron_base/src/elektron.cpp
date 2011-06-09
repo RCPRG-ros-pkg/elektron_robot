@@ -115,11 +115,11 @@ void Protonek::updateOdometry() {
 
 	std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
 
-	int lpos = getdata.lpos + getdata.lindex * enc_ticks;
-	int rpos = getdata.rpos + getdata.rindex * enc_ticks;
+	double lpos = getdata.lpos + enc_ticks * getdata.lindex;
+	double rpos = getdata.rpos + enc_ticks * getdata.rindex;
 
-	double linc = -(double) (lpos - llpos) * m_per_tick;
-	double rinc = -(double) (rpos - lrpos) * m_per_tick;
+	double linc = (double) (llpos - lpos) * m_per_tick;
+	double rinc = (double) (lrpos - rpos) * m_per_tick;
 
 	llpos = lpos;
 	lrpos = rpos;
