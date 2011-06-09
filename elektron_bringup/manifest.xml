@@ -1,0 +1,15 @@
+<package>
+  <description brief="elektron_bringup">
+
+     elektron_bringup
+
+  </description>
+  <author>Maciej Stefanczyk</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/elektron_bringup</url>
+  <depend package="LMS1xx"/>
+
+</package>
+
+
