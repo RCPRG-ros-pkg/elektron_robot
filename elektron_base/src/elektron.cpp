@@ -138,8 +138,8 @@ void Protonek::updateOdometry() {
 	double linc = -(double) (lpos - llpos) * m_per_tick;
 	double rinc = -(double) (rpos - lrpos) * m_per_tick;
 
-	llpos = lpos;
-	lrpos = rpos;
+	llpos = getdata.lpos;
+	lrpos = getdata.rpos;
 	if (odom_initialized == true) {
 		apos -= (linc - rinc) / robot_axle_length;
 		apos = ang_nor_rad(apos);
