@@ -11,10 +11,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstring>
+#include <iostream>
 
 #include "elektron.hpp"
-
-#include <iostream>
 
 using namespace std;
 
@@ -35,8 +34,6 @@ Protonek::Protonek(const std::string& port, int baud) {
 
 	llpos = 0;
 	lrpos = 0;
-
-	old_lpos = old_rpos = 0;
 
 	xpos = 0;
 	ypos = 0;
@@ -115,36 +112,17 @@ void Protonek::getVelocity(double &lvel, double &rvel) {
 }
 
 void Protonek::updateOdometry() {
-	int lpos, rpos;
 
 	std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
 
-	lpos = getdata.lpos;
-	// overflow from +32k to -32k
-	if (old_lpos > 15000 && getdata.lpos < -15000)
-		lpos += 65536;
-	// overflow from -32k to +32k
-	if (old_lpos < -15000 && getdata.lpos > 15000)
-		lpos -= 65536;
+	int lpos = getdata.lpos + getdata.lindex * enc_ticks;
+	int rpos = getdata.rpos + getdata.rindex * enc_ticks;
 
-	rpos = getdata.rpos;
-	// overflow from +32k to -32k
-	if (old_rpos > 15000 && getdata.rpos < -15000)
-		rpos += 65536;
-	// overflow from -32k to +32k
-	if (old_rpos < -15000 && getdata.rpos > 15000)
-		rpos -= 65536;
+	double linc = -(double) (lpos - llpos) * m_per_tick;
+	double rinc = -(double) (rpos - lrpos) * m_per_tick;
 
-	// currently unnecessary - index is always 0
-	//int lpos = getdata.lpos + getdata.lindex * enc_ticks;
-	//int rpos = getdata.rpos + getdata.rindex * enc_ticks;
-
-	double linc = -(double) (lpos - old_lpos) * m_per_tick;
-	double rinc = -(double) (rpos - old_rpos) * m_per_tick;
-
-	old_lpos = getdata.lpos;
-	old_rpos = getdata.rpos;
-
+	llpos = lpos;
+	lrpos = rpos;
 	if (odom_initialized == true) {
 		apos -= (linc - rinc) / robot_axle_length;
 		apos = ang_nor_rad(apos);
