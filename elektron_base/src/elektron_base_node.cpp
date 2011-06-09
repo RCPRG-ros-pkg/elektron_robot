@@ -12,8 +12,8 @@ Protonek *p;
 void twistCallback(	const	geometry_msgs::TwistConstPtr&	msg	)
 {
   double rotational_term = msg->angular.z * 0.335 / 2.0;
-  double rvel = -msg->linear.x - rotational_term;
-  double lvel = -msg->linear.x + rotational_term;
+  double rvel = -msg->linear.x + rotational_term;
+  double lvel = -msg->linear.x - rotational_term;
 
   p->setVelocity(lvel, rvel);
 }
