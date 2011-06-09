@@ -115,6 +115,8 @@ void Protonek::getVelocity(double &lvel, double &rvel) {
 void Protonek::updateOdometry() {
 	int lpos, rpos;
 
+	std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << "\n";
+
 	lpos = getdata.lpos;
 	// overflow from +32k to -32k
 	if (old_lpos > 15000 && getdata.lpos < -15000)
