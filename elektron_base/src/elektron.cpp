@@ -1,5 +1,5 @@
 /*
- * protonek.cc
+ * elektron.cpp
  *
  *  Created on: Sep 5, 2009
  *      Author: konradb3
@@ -125,8 +125,8 @@ void Protonek::updateOdometry()
   int lpos = getdata.lpos + getdata.lindex * enc_ticks;
   int rpos = getdata.rpos + getdata.rindex * enc_ticks;
 
-  double linc = (double)(lpos - llpos) * m_per_tick;
-  double rinc = (double)(rpos - lrpos) * m_per_tick;
+  double linc = -(double)(lpos - llpos) * m_per_tick;
+  double rinc = -(double)(rpos - lrpos) * m_per_tick;
 
   llpos = lpos;
   lrpos = rpos;
