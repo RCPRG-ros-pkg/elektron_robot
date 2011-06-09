@@ -100,6 +100,7 @@ private:
 
 	bool odom_initialized;
 
+	int32_t old_lpos, old_rpos;
 };
 
 #endif /* ELEKTRON_HPP_ */
