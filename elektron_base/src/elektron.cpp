@@ -14,6 +14,8 @@
 
 #include "elektron.hpp"
 
+#include <iostream>
+
 using namespace std;
 
 double ang_nor_rad(double rad) {
