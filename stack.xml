@@ -1,12 +1,14 @@
 <stack>
   <description brief="elektron_robot">elektron_robot</description>
   <author>Maintained by Konrad Banachowicz</author>
-  <license>GPL</license>  
+  <license>GPL,BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/elektron_robot</url>
+  <depend stack="RCPRG_laser_drivers" /> <!-- LMS1xx -->
   <depend stack="common" /> <!-- xacro -->
   <depend stack="common_msgs" /> <!-- nav_msgs, geometry_msgs -->
   <depend stack="geometry" /> <!-- tf -->
-  <depend stack="ros" /> <!-- roscpp -->
+  <depend stack="ros" />
+  <depend stack="ros_comm" /> <!-- roscpp -->
 
 </stack>
