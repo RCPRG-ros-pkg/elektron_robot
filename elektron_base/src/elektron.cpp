@@ -117,18 +117,18 @@ void Protonek::updateOdometry() {
 
 	lpos = getdata.lpos;
 	// overflow from +32k to -32k
-	if (old_lpos > 15000 && getdata.lpos < 15000)
+	if (old_lpos > 15000 && getdata.lpos < -15000)
 		lpos += 65536;
 	// overflow from -32k to +32k
-	if (old_lpos < 15000 && getdata.lpos > 15000)
+	if (old_lpos < -15000 && getdata.lpos > 15000)
 		lpos -= 65536;
 
 	rpos = getdata.rpos;
 	// overflow from +32k to -32k
-	if (old_rpos > 15000 && getdata.rpos < 15000)
+	if (old_rpos > 15000 && getdata.rpos < -15000)
 		rpos += 65536;
 	// overflow from -32k to +32k
-	if (old_rpos < 15000 && getdata.rpos > 15000)
+	if (old_rpos < -15000 && getdata.rpos > 15000)
 		rpos -= 65536;
 
 	// currently unnecessary - index is always 0
