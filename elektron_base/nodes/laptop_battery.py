@@ -34,7 +34,7 @@
 
 
 import roslib
-#roslib.load_manifest('turtlebot_node')
+roslib.load_manifest('elektron_base')
 import rospy
 import diagnostic_msgs.msg
 import subprocess
