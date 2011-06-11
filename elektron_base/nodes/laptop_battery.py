@@ -99,6 +99,7 @@ def laptop_battery_monitor():
         stat.values.append(diagnostic_msgs.msg.KeyValue("Current (A)", str(current)))
         stat.values.append(diagnostic_msgs.msg.KeyValue("Charge (Ah)", str(charge)))
         stat.values.append(diagnostic_msgs.msg.KeyValue("Capacity (Ah)", str(capacity)))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("Percentage (%)", raw_battery_stats['percentage']))
 
         #append
         diag.status.append(stat)
