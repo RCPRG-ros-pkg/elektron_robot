@@ -95,15 +95,15 @@ void Protonek::update() {
 void Protonek::setVelocity(double lvel, double rvel) {
 	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1); // Convert SI units to internal units
 	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1);
-	if (setvel.rvel > 120)
-		setvel.rvel = 120;
-	else if (setvel.rvel < -120)
-		setvel.rvel = -120;
+	if (setvel.rvel > MAX_VEL)
+		setvel.rvel = MAX_VEL;
+	else if (setvel.rvel < -MAX_VEL)
+		setvel.rvel = -MAX_VEL;
 
-	if (setvel.lvel > 120)
-		setvel.lvel = 120;
-	else if (setvel.lvel < -120)
-		setvel.lvel = -120;
+	if (setvel.lvel > MAX_VEL)
+		setvel.lvel = MAX_VEL;
+	else if (setvel.lvel < -MAX_VEL)
+		setvel.lvel = -MAX_VEL;
 }
 
 void Protonek::getVelocity(double &lvel, double &rvel) {
