@@ -32,9 +32,11 @@
 #define REGULATOR_RATE 100
 
 // maximum velocity, in internal units
-#define MAX_VEL 300
+#define MAX_VEL 550
 // number of encoder ticks per single wheel rotation
 #define ENC_TICKS 4000
+
+#define MAGIC_NORMALIZE 2
 
 struct tsetvel {
 	int8_t start;

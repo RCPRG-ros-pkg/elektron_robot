@@ -93,8 +93,9 @@ void Protonek::update() {
 }
 
 void Protonek::setVelocity(double lvel, double rvel) {
-	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1); // Convert SI units to internal units
-	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1);
+	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1 * MAGIC_NORMALIZE); // Convert SI units to internal units
+	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1 * MAGIC_NORMALIZE);
+
 	if (setvel.rvel > MAX_VEL)
 		setvel.rvel = MAX_VEL;
 	else if (setvel.rvel < -MAX_VEL)
@@ -107,19 +108,30 @@ void Protonek::setVelocity(double lvel, double rvel) {
 }
 
 void Protonek::getVelocity(double &lvel, double &rvel) {
+	static int maxl = 0, maxr = 0;
 	lvel = (double) (getdata.lvel) * m_per_tick * 10;
 	rvel = (double) (getdata.rvel) * m_per_tick * 10;
+
+	if (getdata.lvel > maxl) maxl = getdata.lvel;
+	if (getdata.rvel > maxr) maxr = getdata.rvel;
+
+	std::cout << maxl << " " << maxr << "\n";
 }
 
 void Protonek::updateOdometry() {
 
-	std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
+	//std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
+
+	std::cout << "vel: " << getdata.lvel << " " << getdata.rvel << "\n";
 
 	double lpos = getdata.lpos + enc_ticks * getdata.lindex;
 	double rpos = getdata.rpos + enc_ticks * getdata.rindex;
 
+
+
 	double linc = (double) (llpos - lpos) * m_per_tick;
 	double rinc = (double) (lrpos - rpos) * m_per_tick;
+	std::cout << "linc: " << (llpos - lpos) << ", rinc: " << (lrpos - rpos) << "\n";
 
 	llpos = lpos;
 	lrpos = rpos;
