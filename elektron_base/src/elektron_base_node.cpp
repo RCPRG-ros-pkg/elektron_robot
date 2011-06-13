@@ -80,6 +80,13 @@ int main(int argc, char** argv) {
 			odom.pose.pose.position.z = 0.0;
 			odom.pose.pose.orientation = odom_quat;
 
+			odom.pose.covariance[0,0] = 0.00001;
+			odom.pose.covariance[1,1] = 0.00001;
+			odom.pose.covariance[2,2] = 10.0;
+			odom.pose.covariance[3,3] = 1.0;
+			odom.pose.covariance[4,4] = 1.0;
+			odom.pose.covariance[5,5] = 1.0;
+
 			//set the velocity
 			odom.child_frame_id = "base_link";
 			odom.twist.twist.linear.x = xvel;

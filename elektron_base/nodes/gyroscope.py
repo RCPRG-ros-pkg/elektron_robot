@@ -39,6 +39,7 @@ import rospy
 import math
 from sensor_msgs.msg import Imu
 import serial
+from PyKDL import Rotation
 
 class Gyro:
 
@@ -48,18 +49,21 @@ class Gyro:
         self.orientation = 0
         self.bias = 0
         
-        self.frame_id = params['frame_id']
+        self.frame_id = 'frame_id'
         self.prev_time = rospy.Time.now()
         
-        self.pub = rospy.Publisher("/imu", Imu)
+        self.pub = rospy.Publisher("/imu_data", Imu)
 
     def calibrate(self):
-        pass
-
-    def spin(self):
-        while(1):
+        rospy.loginfo("Calibrating Gyro. Don't move the robot now")
+        start_time = rospy.Time.now()
+        cal_duration = rospy.Duration(4.0)
+        offset = 0
+        cnt = 0
+        while rospy.Time.now() < start_time + cal_duration:
+            
             # get line from device
-            str = ser.readline()
+            str = self.ser.readline()
             strs = str.split()
             pairs = []
             for s in strs:
@@ -69,12 +73,40 @@ class Gyro:
             if (len(pairs) != 6):
                 continue
             
-            sample = int(pair[5])
+            cnt += 1
+            sample = int(pairs[5])
+            
+            offset += sample;
+            
+        self.bias = 1.0 * offset / cnt
+        rospy.loginfo("Gyro calibrated with offset %f"%self.bias)
+        pass
 
+    def spin(self):
+        self.prev_time = rospy.Time.now()
+        
+        while(1):
             # prepare Imu frame
             imu = Imu()
             imu.header.frame_id = self.frame_id
+            
+            # get line from device
+            str = self.ser.readline()
+                        
+            # timestamp
             imu.header.stamp = rospy.Time.now()
+            
+            strs = str.split()
+            pairs = []
+            for s in strs:
+                pairs = pairs + s.split('=')
+                
+            # check, if it was correct line
+            if (len(pairs) != 6):
+                continue
+            
+            sample = int(pairs[5])
+
             imu.angular_velocity.x = 0.0
             imu.angular_velocity.y = 0.0
             imu.angular_velocity.z = (sample-self.bias)*math.pi/180.0
@@ -84,11 +116,12 @@ class Gyro:
             self.orientation += imu.angular_velocity.z * (imu.header.stamp - self.prev_time).to_sec()
             self.prev_time = imu.header.stamp
             (imu.orientation.x, imu.orientation.y, imu.orientation.z, imu.orientation.w) = Rotation.RotZ(self.orientation).GetQuaternion()
-            self.pub2.publish(imu)
+            self.pub.publish(imu)
 
 
 
 if __name__ == '__main__':
+    rospy.init_node('gyroscope')
     gyro = Gyro()
     gyro.calibrate()
     
