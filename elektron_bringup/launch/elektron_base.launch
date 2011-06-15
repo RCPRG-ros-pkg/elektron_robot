@@ -1,0 +1,9 @@
+<launch>
+	<!-- send elektron.xml to param server -->
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find elektron_defs)/robots/elektron.udrf.xacro'" />
+
+	<!-- load base controller -->
+	<node name="elektron" pkg="elektron_base" type="elektron_base_node" respawn="true" output="screen">
+		<param name="device" type="string" value="/dev/ttyUSB0" />
+	</node> 
+</launch>
