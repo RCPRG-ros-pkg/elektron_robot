@@ -10,4 +10,4 @@ analyzers:
     type: GenericAnalyzer
     path: 'Network'
     timeout: 5.0
-    startswith: ['eth']
+    startswith: ['eth', 'wlan']

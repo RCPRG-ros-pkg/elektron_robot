@@ -44,15 +44,17 @@ from PyKDL import Rotation
 class Gyro:
 
     def __init__(self):
-        self.ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=1)
-        
+        self.ser = serial.Serial('/dev/ttyUSB1', 38400, timeout=1)
+
         self.orientation = 0
         self.bias = 0
-        
-        self.frame_id = 'frame_id'
+
+        self.frame_id = 'base_footprint'
         self.prev_time = rospy.Time.now()
-        
+
         self.pub = rospy.Publisher("/imu_data", Imu)
+        
+        self.scale = 360.0 / 383.2
 
     def calibrate(self):
         rospy.loginfo("Calibrating Gyro. Don't move the robot now")
@@ -61,58 +63,60 @@ class Gyro:
         offset = 0
         cnt = 0
         while rospy.Time.now() < start_time + cal_duration:
-            
+
             # get line from device
             str = self.ser.readline()
-            strs = str.split()
-            pairs = []
-            for s in strs:
-                pairs = pairs + s.split('=')
-                
+            nums = str.split()
+
             # check, if it was correct line
-            if (len(pairs) != 6):
+            if (len(nums) != 5):
                 continue
-            
+
             cnt += 1
-            sample = int(pairs[5])
-            
-            offset += sample;
-            
+            gyro = int(nums[2])
+            ref = int(nums[3])
+            temp = int(nums[4])
+
+            val = ref-gyro;
+
+            offset += val;
+
         self.bias = 1.0 * offset / cnt
         rospy.loginfo("Gyro calibrated with offset %f"%self.bias)
         pass
 
     def spin(self):
         self.prev_time = rospy.Time.now()
-        
+
         while(1):
             # prepare Imu frame
             imu = Imu()
             imu.header.frame_id = self.frame_id
-            
+
             # get line from device
             str = self.ser.readline()
-                        
+
             # timestamp
             imu.header.stamp = rospy.Time.now()
-            
-            strs = str.split()
-            pairs = []
-            for s in strs:
-                pairs = pairs + s.split('=')
-                
-            # check, if it was correct line
-            if (len(pairs) != 6):
-                continue
-            
-            sample = int(pairs[5])
 
-            imu.angular_velocity.x = 0.0
-            imu.angular_velocity.y = 0.0
-            imu.angular_velocity.z = (sample-self.bias)*math.pi/180.0
+            nums = str.split()
+
+            # check, if it was correct line
+            if (len(nums) != 5):
+                continue
+
+            gyro = int(nums[2])
+            ref = int(nums[3])
+            temp = int(nums[4])
+
+            val = (ref-gyro - self.bias) * 1000 / 3 / 1024 * self.scale
+
+            imu.angular_velocity.x = 0
+            imu.angular_velocity.y = 0
+            imu.angular_velocity.z = val * math.pi / 180
             imu.angular_velocity_covariance = [0, 0, 0, 0, 0, 0, 0, 0, 1]
             imu.orientation_covariance = [0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.1]
-            
+
             self.orientation += imu.angular_velocity.z * (imu.header.stamp - self.prev_time).to_sec()
             self.prev_time = imu.header.stamp
             (imu.orientation.x, imu.orientation.y, imu.orientation.z, imu.orientation.w) = Rotation.RotZ(self.orientation).GetQuaternion()
@@ -124,7 +128,7 @@ if __name__ == '__main__':
     rospy.init_node('gyroscope')
     gyro = Gyro()
     gyro.calibrate()
-    
+
     try:
         gyro.spin()
     except rospy.ROSInterruptException: pass
