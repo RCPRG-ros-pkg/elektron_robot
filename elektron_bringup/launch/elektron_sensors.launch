@@ -1,0 +1,11 @@
+<launch>
+	<!-- Sick LMS100 laser rangefinder -->
+	<node name="tf_laser_link" pkg="tf" type="static_transform_publisher" args="0 0 0.3 0 0 0 base_link base_laser_link 40" />
+	<node name="base_laser" pkg="LMS1xx" type="LMS100" respawn="true" output="screen">
+		<param name="host" type="string" value="192.168.1.2" />
+		<param name="frame_id" type="string" value="base_laser_link" />
+	</node>
+	
+	<!-- Gyroscope module -->
+	<node name="gyro" pkg="elektron_base" type="gyroscope.py"/>
+</launch>

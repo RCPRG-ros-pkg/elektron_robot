@@ -1,0 +1,13 @@
+pub_rate: 1.0 # Optional
+base_path: '' # Optional, prepended to all diagnostic output
+analyzers:
+  power:
+    type: GenericAnalyzer
+    path: 'Power System'
+    timeout: 5.0
+    startswith: ['Battery', 'Laptop Battery']
+  network:
+    type: GenericAnalyzer
+    path: 'Network'
+    timeout: 5.0
+    startswith: ['eth']
