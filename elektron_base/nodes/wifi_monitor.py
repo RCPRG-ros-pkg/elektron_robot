@@ -59,6 +59,18 @@ def wifi_monitor():
             level = float(strs[2])
             noise = float(strs[3])
         
+            p1 = Popen(["ifconfig", face], stdout=PIPE)
+            p2 = Popen(["grep", "\"inet addr\""], stdin=p1.stdout, stdout=PIPE)
+            p3 = Popen(["awk", "-F:", "'{print $2}'"], stdin=p2.stdout, stdout=PIPE)
+            p4 = Popen(["awk",  "'{print $1}'"], stdin=p3.stdout, stdout=PIPE)
+            
+            p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            p3.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            output = p4.communicate()[0]
+        
+            print "Output: %s"%output   
+        
             #interface info                                                                                                                              
             stat = diagnostic_msgs.msg.DiagnosticStatus()
             stat.name = face.strip()
