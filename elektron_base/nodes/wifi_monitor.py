@@ -38,7 +38,6 @@ roslib.load_manifest('elektron_base')
 import rospy
 import diagnostic_msgs.msg
 import subprocess
-import re
 
 def wifi_monitor():
     diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
@@ -61,10 +60,22 @@ def wifi_monitor():
             noise = float(strs[3])
             face = face.strip()
         
+            p1 = subprocess.Popen(["ifconfig", face], stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(["grep", "inet addr"], stdin=p1.stdout, stdout=subprocess.PIPE)
+            p3 = subprocess.Popen(["awk", "-F:", "{print $2}"], stdin=p2.stdout, stdout=subprocess.PIPE)
+            p4 = subprocess.Popen(["awk",  "{print $1}"], stdin=p3.stdout, stdout=subprocess.PIPE)
+            
+            p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            p3.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            output = p4.communicate()[0]
+        
+            rospy.logwarn("Output: %s"%output)   
+            
             output = subprocess.Popen(['ifconfig', face], stdout=subprocess.PIPE).communicate()[0]
             ip = re.findall('inet addr:([^ ]*) ', output)[0]
         
-            print "Output: %s"%ip
+            rospy.logwarn("Output: %s"%ip)
         
             #interface info                                                                                                                              
             stat = diagnostic_msgs.msg.DiagnosticStatus()
