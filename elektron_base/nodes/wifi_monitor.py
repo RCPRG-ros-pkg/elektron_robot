@@ -38,6 +38,7 @@ roslib.load_manifest('elektron_base')
 import rospy
 import diagnostic_msgs.msg
 import subprocess
+import re
 
 def wifi_monitor():
     diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
