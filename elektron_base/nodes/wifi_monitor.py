@@ -61,9 +61,9 @@ def wifi_monitor():
             face = face.strip()
         
             p1 = subprocess.Popen(["ifconfig", face], stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(["grep", "\"inet addr\""], stdin=p1.stdout, stdout=subprocess.PIPE)
-            p3 = subprocess.Popen(["awk", "-F:", "'{print $2}'"], stdin=p2.stdout, stdout=subprocess.PIPE)
-            p4 = subprocess.Popen(["awk",  "'{print $1}'"], stdin=p3.stdout, stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(["grep", "inet addr"], stdin=p1.stdout, stdout=subprocess.PIPE)
+            p3 = subprocess.Popen(["awk", "-F:", "{print $2}"], stdin=p2.stdout, stdout=subprocess.PIPE)
+            p4 = subprocess.Popen(["awk",  "{print $1}"], stdin=p3.stdout, stdout=subprocess.PIPE)
             
             p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
             p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
