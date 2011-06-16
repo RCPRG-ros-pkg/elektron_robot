@@ -7,5 +7,7 @@
 	</node>
 	
 	<!-- Gyroscope module -->
-	<node name="gyro" pkg="elektron_base" type="gyroscope.py"/>
+	<node name="gyro" pkg="elektron_base" type="gyroscope.py"> 
+		<param name="device" type="string" value="/dev/ttyUSB2" />
+	</node>
 </launch>

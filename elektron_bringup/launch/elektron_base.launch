@@ -4,6 +4,6 @@
 
 	<!-- load base controller -->
 	<node name="elektron" pkg="elektron_base" type="elektron_base_node" respawn="true" output="screen">
-		<param name="device" type="string" value="/dev/ttyUSB0" />
+		<param name="device" type="string" value="/dev/protonek" />
 	</node> 
 </launch>
