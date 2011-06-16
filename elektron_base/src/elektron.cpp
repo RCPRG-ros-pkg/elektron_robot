@@ -115,7 +115,7 @@ void Protonek::getVelocity(double &lvel, double &rvel) {
 	if (getdata.lvel > maxl) maxl = getdata.lvel;
 	if (getdata.rvel > maxr) maxr = getdata.rvel;
 
-	std::cout << maxl << " " << maxr << "\n";
+	//std::cout << maxl << " " << maxr << "\n";
 }
 
 void Protonek::updateOdometry() {
