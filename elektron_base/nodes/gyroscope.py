@@ -44,8 +44,8 @@ from PyKDL import Rotation
 class Gyro:
 
     def __init__(self):
-        self.device = rospy.get_param("device", "/dev/ttyUSB0")
-        self.baud = rospy.get_param("baud", 38400)
+        self.device = rospy.get_param('~device', '/dev/ttyUSB0')
+        self.baud = rospy.get_param('~baud', 38400)
         self.ser = serial.Serial(self.device, self.baud, timeout=1)
 
         self.orientation = 0
