@@ -58,6 +58,7 @@ def wifi_monitor():
             link = float(strs[1])
             level = float(strs[2])
             noise = float(strs[3])
+            face = face.strip()
         
             p1 = subprocess.Popen(["ifconfig", face], stdout=subprocess.PIPE)
             p2 = subprocess.Popen(["grep", "\"inet addr\""], stdin=p1.stdout, stdout=subprocess.PIPE)
@@ -73,7 +74,7 @@ def wifi_monitor():
         
             #interface info                                                                                                                              
             stat = diagnostic_msgs.msg.DiagnosticStatus()
-            stat.name = face.strip()
+            stat.name = face
             stat.level = diagnostic_msgs.msg.DiagnosticStatus.OK
             stat.message = "OK"
         
