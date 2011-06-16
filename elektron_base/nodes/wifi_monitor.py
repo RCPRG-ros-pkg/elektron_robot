@@ -59,10 +59,10 @@ def wifi_monitor():
             level = float(strs[2])
             noise = float(strs[3])
         
-            p1 = subprocess.Popen(["ifconfig", face], stdout=PIPE)
-            p2 = subprocess.Popen(["grep", "\"inet addr\""], stdin=p1.stdout, stdout=PIPE)
-            p3 = subprocess.Popen(["awk", "-F:", "'{print $2}'"], stdin=p2.stdout, stdout=PIPE)
-            p4 = subprocess.Popen(["awk",  "'{print $1}'"], stdin=p3.stdout, stdout=PIPE)
+            p1 = subprocess.Popen(["ifconfig", face], stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(["grep", "\"inet addr\""], stdin=p1.stdout, stdout=subprocess.PIPE)
+            p3 = subprocess.Popen(["awk", "-F:", "'{print $2}'"], stdin=p2.stdout, stdout=subprocess.PIPE)
+            p4 = subprocess.Popen(["awk",  "'{print $1}'"], stdin=p3.stdout, stdout=subprocess.PIPE)
             
             p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
             p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
