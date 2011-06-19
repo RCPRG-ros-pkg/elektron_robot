@@ -150,6 +150,7 @@
       </controller:gazebo_ros_laser>
     </sensor:ray>
   </gazebo>
+  
   <gazebo>
     <controller:differential_position2d name="controller1">
       <update>100</update>
@@ -173,14 +174,16 @@
       <interface:position name="p3d_base_position"/>
     </controller:gazebo_ros_p3d>
 
-    <!-- this publishes empty joint_states due to no transmission, but
-         triggering robot_state_puublisher to publish tf between fixed joints in erratic,
-         (e.g. base_laser_link for the base_scan frame) -->
-<!--    <controller:gazebo_ros_controller_manager name="gazebo_ros_controller_manager" plugin="libgazebo_ros_controller_manager.so">
+  	<controller:gazebo_ros_imu name="imu_controller" plugin="libgazebo_ros_imu.so">
       <alwaysOn>true</alwaysOn>
       <updateRate>1000.0</updateRate>
-      <interface:audio name="gazebo_ros_controller_manager_dummy_iface" />
-    </controller:gazebo_ros_controller_manager> -->
+      <bodyName>base_link</bodyName>
+      <topicName>body_pose_ground_truth</topicName>
+      <xyzOffsets>25.65 25.65 0</xyzOffsets> <!-- option to initialize odometry for fake localization-->
+      <rpyOffsets>0 0 0</rpyOffsets>
+      <gaussianNoise>0.5</gaussianNoise>
+      <interface:position name="imu_position_iface"/>
+    </controller:gazebo_ros_imu>
   </gazebo>
 
 
