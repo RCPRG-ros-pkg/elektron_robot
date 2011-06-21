@@ -22,6 +22,8 @@ int main(int argc, char** argv) {
 	ros::NodeHandle n;
 	ros::NodeHandle nh("~");
 
+	bool publish_odom_tf;
+
 	ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry> ("odom", 1);
 
 	tf::TransformBroadcaster odom_broadcaster;
@@ -32,7 +34,13 @@ int main(int argc, char** argv) {
 
 	std::string dev;
 
-	nh.getParam("device", dev);
+	if (!nh.getParam("device", dev)) {
+		dev = "/dev/protonek";
+	}
+
+	if (!nh.getParam("publish_odom_tf", publish_odom_tf)) {
+		publish_odom_tf = false;
+	}
 
 	nav_msgs::Odometry odom;
 	odom.header.frame_id = "odom";
@@ -57,19 +65,21 @@ int main(int argc, char** argv) {
 			p->getVelocity(xvel, thvel);
 
 			//since all odometry is 6DOF we'll need a quaternion created from yaw
-			geometry_msgs::Quaternion odom_quat =
-					tf::createQuaternionMsgFromYaw(th);
+			geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
 
-			//first, we'll publish the transform over tf
-			odom_trans.header.stamp = current_time;
 
-			odom_trans.transform.translation.x = x;
-			odom_trans.transform.translation.y = y;
-			odom_trans.transform.translation.z = 0.0;
-			odom_trans.transform.rotation = odom_quat;
+			if (publish_odom_tf) {
+				//first, we'll publish the transform over tf
+				odom_trans.header.stamp = current_time;
 
-			//send the transform
-			odom_broadcaster.sendTransform(odom_trans);
+				odom_trans.transform.translation.x = x;
+				odom_trans.transform.translation.y = y;
+				odom_trans.transform.translation.z = 0.0;
+				odom_trans.transform.rotation = odom_quat;
+
+				//send the transform
+				odom_broadcaster.sendTransform(odom_trans);
+			}
 
 			//next, we'll publish the odometry message over ROS
 			odom.header.stamp = current_time;
@@ -85,7 +95,7 @@ int main(int argc, char** argv) {
 			odom.pose.covariance[14] = 10.0;
 			odom.pose.covariance[21] = 1.0;
 			odom.pose.covariance[28] = 1.0;
-			odom.pose.covariance[35] = 1.0;
+			odom.pose.covariance[35] = thvel + 0.001;
 
 			//set the velocity
 			odom.child_frame_id = "base_link";
