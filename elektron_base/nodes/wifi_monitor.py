@@ -67,16 +67,20 @@ def wifi_monitor():
             p4 = subprocess.Popen(["awk",  "{print $1}"], stdin=p3.stdout, stdout=subprocess.PIPE)
             
             p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-            p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-            p3.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p3 exits.
+            p3.stdout.close()  # Allow p1 to receive a SIGPIPE if p4 exits.
             output = p4.communicate()[0]
         
-            rospy.logwarn("Output: %s"%output)   
+            #rospy.logwarn("Output: %s"%output)   
             
             output = subprocess.Popen(['ifconfig', face], stdout=subprocess.PIPE).communicate()[0]
-            ip = re.findall('inet addr:([^ ]*) ', output)[0]
+            ret = re.findall('inet addr:([^ ]*) ', output)
+            if (len(ret) > 0):
+                ip = ret[0]
+            else:
+                ip = "not connected"  
         
-            rospy.logwarn("Output: %s"%ip)
+            #rospy.logwarn("Output: %s"%ip)
         
             #interface info                                                                                                                              
             stat = diagnostic_msgs.msg.DiagnosticStatus()
@@ -88,6 +92,7 @@ def wifi_monitor():
             stat.values.append(diagnostic_msgs.msg.KeyValue("Quality", str(link)))
             stat.values.append(diagnostic_msgs.msg.KeyValue("Level", str(level)))
             stat.values.append(diagnostic_msgs.msg.KeyValue("Noise", str(noise)))
+            stat.values.append(diagnostic_msgs.msg.KeyValue("IP", ip))
 
             #append
             diag.status.append(stat)
