@@ -12,7 +12,7 @@
   <depend package="elektron_robot"/>
   <depend package="elektron_sensors"/>
   <depend package="elektron_monitor"/>
-  <depend package="diagnostic_msgs"/>
+  <depend package="diagnostic_aggregator"/>
 
 </package>
 
