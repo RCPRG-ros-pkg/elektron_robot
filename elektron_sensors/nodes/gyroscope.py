@@ -29,7 +29,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
-roslib.load_manifest('elektron_base')
+roslib.load_manifest('elektron_sensors')
 
 import rospy
 
