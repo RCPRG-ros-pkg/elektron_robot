@@ -69,7 +69,7 @@ class Gyro:
         self.pub = rospy.Publisher("/imu/data", Imu)
         
         # rotation scale
-        self.scale = 360.0 / 383.2
+        self.scale = rospy.get_param('~rot_scale', 1.0)
         
         # service for calibrating gyro bias
         rospy.Service("/imu/calibrate", Empty, self.calibrateCallback)
