@@ -76,11 +76,6 @@ def laptop_battery_monitor():
                     raw_battery_stats['percentage'] = v.rstrip('%')
                 elif k == 'on-battery':
                     raw_battery_stats['on_battery'] = v
-                    
-
-                #else:
-                #    print "not processing", l_vec
-
 
         voltage = float(raw_battery_stats['voltage'])
         watts = float(raw_battery_stats['watts'])

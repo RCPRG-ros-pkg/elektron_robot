@@ -2,68 +2,99 @@
 
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2011, Willow Garage, Inc.
+# Copyright (c) 2011, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+#
 # All rights reserved.
-#
+# 
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of the Willow Garage nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
 roslib.load_manifest('elektron_base')
+
 import rospy
-import math
+
 from sensor_msgs.msg import Imu
-import serial
+from std_msgs.msg import Bool
+from std_srvs.srv import Empty, EmptyResponse
+
 from PyKDL import Rotation
 
+import serial
+import math
+
+
 class Gyro:
+    """ 
+    Class for interfacing with gyroscope on Elektron mobile robot.
+    Responsible for retrieving data from device, calibration and
+    calculating current orientation. 
+    """
 
     def __init__(self):
+        # open serial port
         self.device = rospy.get_param('~device', '/dev/ttyUSB0')
         self.baud = rospy.get_param('~baud', 38400)
         self.ser = serial.Serial(self.device, self.baud, timeout=1)
 
+        # reset variables
         self.orientation = 0
         self.bias = 0
+
+        self.calibrating = False
 
         self.frame_id = 'base_footprint'
         self.prev_time = rospy.Time.now()
 
-        self.pub = rospy.Publisher("/imu_data", Imu)
+        # publisher with imu data
+        self.pub = rospy.Publisher("/imu/data", Imu)
         
+        # rotation scale
         self.scale = 360.0 / 383.2
+        
+        # service for calibrating gyro bias
+        rospy.Service("/imu/calibrate", Empty, self.calibrateCallback)
+        
+        # publisher with calibration state
+        self.is_calibratedPublisher = rospy.Publisher('/imu/is_calibrated', Bool, latch=True)
+        
+        # We'll always just reuse this msg object:        
+        self.is_CalibratedResponseMsg = Bool();
+
+        # Initialize the latched is_calibrated state. 
+        # At the beginning calibration is assumed to be done
+
+        self.is_CalibratedResponseMsg.data = True;
+        self.is_calibratedPublisher.publish(self.is_CalibratedResponseMsg)
 
     def calibrate(self):
+        # calibration routine
         rospy.loginfo("Calibrating Gyro. Don't move the robot now")
         start_time = rospy.Time.now()
-        cal_duration = rospy.Duration(4.0)
+        cal_duration = rospy.Duration(5.0)
         offset = 0
         cnt = 0
+        # flush input buffer to calibrate on newest data  
+        self.ser.flushInput()
         while rospy.Time.now() < start_time + cal_duration:
 
             # get line from device
@@ -85,12 +116,34 @@ class Gyro:
 
         self.bias = 1.0 * offset / cnt
         rospy.loginfo("Gyro calibrated with offset %f"%self.bias)
-        pass
+        
+        # Update the latched is_calibrated state:
+        self.is_CalibratedResponseMsg.data = True
+        self.is_calibratedPublisher.publish(self.is_CalibratedResponseMsg)
+        
+        return True
+
+
+
+    def calibrateCallback(self, req):
+        """The imu/calibrate service handler."""
+          
+        rospy.loginfo("Calibration request")
+                
+        self.calibrating = True
+        
+        return EmptyResponse()
+      
 
     def spin(self):
         self.prev_time = rospy.Time.now()
 
-        while(1):
+        while not rospy.is_shutdown():
+            if self.calibrating:
+                self.calibrate()
+                self.calibrating = False
+                self.prev_time = rospy.Time.now()
+            
             # prepare Imu frame
             imu = Imu()
             imu.header.frame_id = self.frame_id
