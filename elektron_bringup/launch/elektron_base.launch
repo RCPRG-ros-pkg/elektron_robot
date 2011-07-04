@@ -5,5 +5,9 @@
 	<!-- load base controller -->
 	<node name="elektron" pkg="elektron_base" type="elektron_base_node" respawn="true" output="screen">
 		<param name="device" type="string" value="/dev/protonek" />
+		<param name="dump" type="bool" value="false" />
+
+		<param name="lin_scale" type="double" value="0.9812" />
+		<param name="rot_scale" type="double" value="1.08" />
 	</node> 
 </launch>

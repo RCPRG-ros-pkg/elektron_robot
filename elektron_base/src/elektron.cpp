@@ -50,6 +50,9 @@ Protonek::Protonek(const std::string& port, int baud) {
 	m_per_tick = M_PI * WHEEL_DIAM / ENC_TICKS;
 	enc_ticks = ENC_TICKS;
 
+	lin_scale = 1.0;
+	rot_scale = 1.0;
+
 	fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd >= 0) {
 		tcgetattr(fd, &oldtio);
@@ -73,6 +76,8 @@ Protonek::Protonek(const std::string& port, int baud) {
 		tcsetattr(fd, TCSANOW, &newtio);
 		connected = true;
 	}
+
+	_dump = false;
 }
 
 Protonek::~Protonek() {
@@ -80,6 +85,17 @@ Protonek::~Protonek() {
 	if (fd > 0)
 		tcsetattr(fd, TCSANOW, &oldtio);
 	close(fd);
+}
+
+void Protonek::setParams(double ls, double rs) {
+	lin_scale = ls;
+	rot_scale = rs;
+}
+
+void Protonek::dump() {
+	_dump = true;
+	of.open("/tmp/odom_dump.txt");
+	of << "lpos;lindex;rpos;rindex;lvel;rvel;apos;xpos;ypos\n";
 }
 
 void Protonek::update() {
@@ -93,8 +109,8 @@ void Protonek::update() {
 }
 
 void Protonek::setVelocity(double lvel, double rvel) {
-	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1 * MAGIC_NORMALIZE); // Convert SI units to internal units
-	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1 * MAGIC_NORMALIZE);
+	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1); // Convert SI units to internal units
+	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1);
 
 	if (setvel.rvel > MAX_VEL)
 		setvel.rvel = MAX_VEL;
@@ -107,15 +123,17 @@ void Protonek::setVelocity(double lvel, double rvel) {
 		setvel.lvel = -MAX_VEL;
 }
 
-void Protonek::getVelocity(double &lvel, double &rvel) {
+void Protonek::getVelocity(double &xvel, double &thvel) {
 	static int maxl = 0, maxr = 0;
-	lvel = (double) (getdata.lvel) * m_per_tick * 10;
-	rvel = (double) (getdata.rvel) * m_per_tick * 10;
+	double lvel = (double) (getdata.lvel) * m_per_tick * 10;
+	double rvel = (double) (getdata.rvel) * m_per_tick * 10;
 
 	if (getdata.lvel > maxl) maxl = getdata.lvel;
 	if (getdata.rvel > maxr) maxr = getdata.rvel;
 
 	//std::cout << maxl << " " << maxr << "\n";
+	xvel = (lvel + rvel) * 0.5;
+	thvel = (lvel - rvel) / AXLE_LENGTH;
 }
 
 void Protonek::updateOdometry() {
@@ -129,19 +147,25 @@ void Protonek::updateOdometry() {
 
 
 
-	double linc = (double) (llpos - lpos) * m_per_tick;
-	double rinc = (double) (lrpos - rpos) * m_per_tick;
+	double linc = (double) (llpos - lpos) * m_per_tick * lin_scale;
+	double rinc = (double) (lrpos - rpos) * m_per_tick * lin_scale;
 	//std::cout << "linc: " << (llpos - lpos) << ", rinc: " << (lrpos - rpos) << "\n";
 
 	llpos = lpos;
 	lrpos = rpos;
 	if (odom_initialized == true) {
-		apos -= (linc - rinc) / robot_axle_length;
+		apos -= (linc - rinc) / robot_axle_length * rot_scale;
 		apos = ang_nor_rad(apos);
 		double dist = (rinc + linc) / 2;
 
 		xpos += dist * cos(apos);
 		ypos += dist * sin(apos);
+
+		if (_dump) {
+			of << getdata.lpos << ";" << getdata.lindex << ";" << getdata.rpos << ";" << getdata.rindex << ";" 
+				<< getdata.lvel << ";" << getdata.rvel << ";"
+				<< apos << ";" << xpos << ";" << ypos << "\n";				
+		}
 	} else
 		odom_initialized = true;
 

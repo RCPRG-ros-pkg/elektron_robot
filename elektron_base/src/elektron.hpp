@@ -17,9 +17,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string>
+#include <fstream>
 
 // baudrate
-#define BAUD B9600
+#define BAUD B115200
 // port
 #define PORT = "/dev/ttyUSB0"
 
@@ -36,7 +37,6 @@
 // number of encoder ticks per single wheel rotation
 #define ENC_TICKS 4000
 
-#define MAGIC_NORMALIZE 2
 
 struct tsetvel {
 	int8_t start;
@@ -84,6 +84,10 @@ public:
 	double robot_axle_length;
 	double enc_ticks;
 
+	void dump();
+
+	void setParams(double ls, double rs);
+
 private:
 	// serial port descriptor
 	int fd;
@@ -103,6 +107,13 @@ private:
 	bool odom_initialized;
 
 	int32_t old_lpos, old_rpos;
+
+	std::ofstream of;
+
+	bool _dump;
+
+	double lin_scale;
+	double rot_scale;
 };
 
 #endif /* ELEKTRON_HPP_ */

@@ -23,6 +23,9 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nh("~");
 
 	bool publish_odom_tf;
+	bool dump;
+
+	double ls, rs;
 
 	ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry> ("odom", 1);
 
@@ -42,6 +45,18 @@ int main(int argc, char** argv) {
 		publish_odom_tf = false;
 	}
 
+	if (!nh.getParam("dump", dump)) {
+		dump = false;
+	}
+	
+	if (!nh.getParam("lin_scale", ls)) {
+                ls = 1.0;
+        }
+
+	if (!nh.getParam("rot_scale", rs)) {
+                rs = 1.0;
+        }
+
 	nav_msgs::Odometry odom;
 	odom.header.frame_id = "odom";
 	odom.child_frame_id = "base_link";
@@ -54,6 +69,11 @@ int main(int argc, char** argv) {
 	p = new Protonek(dev);
 
 	if (p->isConnected()) {
+		if (dump)
+			p->dump();
+
+		p->setParams(ls, rs);
+
 		while (ros::ok()) {
 			double x, y, th, xvel, thvel;
 
@@ -110,7 +130,7 @@ int main(int argc, char** argv) {
 			loop_rate.sleep();
 		}
 	} else {
-		ROS_ERROR("Connection to device %s failed", dev);
+		ROS_ERROR("Connection to device %s failed", dev.c_str());
 	}
 
 	return 0;
