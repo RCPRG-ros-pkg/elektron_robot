@@ -34,7 +34,7 @@
 
 
 import roslib
-roslib.load_manifest('elektron_base')
+roslib.load_manifest('elektron_monitor')
 import rospy
 import diagnostic_msgs.msg
 import subprocess
