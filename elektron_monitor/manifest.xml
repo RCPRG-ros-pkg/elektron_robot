@@ -1,0 +1,17 @@
+<package>
+  <description brief="elektron_monitor">
+
+     elektron_monitor
+
+  </description>
+  <author>Maciej Stefanczyk</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/elektron_monitor</url>
+
+  <depend package="diagnostic_msgs"/>
+  <depend package="rospy"/>
+  
+</package>
+
+

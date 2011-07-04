@@ -1,11 +1,11 @@
 <launch>	
 	<!-- Laptop battery monitor -->
-	<node name="laptop_battery" pkg="elektron_base" type="laptop_battery.py"/>
+	<node name="laptop_battery" pkg="elektron_monitor" type="laptop_battery.py"/>
 	
-	<node name="wifi_monitor" pkg="elektron_base" type="wifi_monitor.py"/>
+	<node name="wifi_monitor" pkg="elektron_monitor" type="wifi_monitor.py"/>
 	
 	<!-- Prepare diagnostic_aggregator and load it's analyzers -->
 	<node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
-	<rosparam command="load" file="$(find elektron_base)/config/diagnostics.yaml" />
+	<rosparam command="load" file="$(find elektron_monitor)/config/diagnostics.yaml" />
 	</node>
 </launch>

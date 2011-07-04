@@ -4,11 +4,10 @@
   <license>GPL,BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/elektron_robot</url>
-  <depend stack="RCPRG_laser_drivers" /> <!-- LMS1xx -->
   <depend stack="common" /> <!-- xacro -->
-  <depend stack="common_msgs" /> <!-- nav_msgs, geometry_msgs -->
-  <depend stack="geometry" /> <!-- tf -->
+  <depend stack="common_msgs" /> <!-- nav_msgs, sensor_msgs, geometry_msgs, diagnostic_msgs -->
+  <depend stack="geometry" /> <!-- tf, kdl -->
   <depend stack="ros" />
-  <depend stack="ros_comm" /> <!-- roscpp -->
+  <depend stack="ros_comm" /> <!-- std_msgs, rospy, std_srvs, roscpp -->
 
 </stack>
