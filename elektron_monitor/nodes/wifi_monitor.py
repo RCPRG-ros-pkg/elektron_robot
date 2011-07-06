@@ -40,8 +40,8 @@ import re
 
 def wifi_monitor():
     """ 
-    Class for interfacing retrieving information about wireless network interfaces,
-    publishes signal power and noise ratios, IP address etc. 
+    Function for retrieving information about wireless network interfaces,
+    publishing signal power and noise ratios, IP address etc. 
     """
     
     diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
