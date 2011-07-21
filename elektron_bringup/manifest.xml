@@ -9,7 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/elektron_bringup</url>
   <depend package="LMS1xx"/>
-  <depend package="elektron_robot"/>
+  <depend package="elektron_base"/>
   <depend package="elektron_sensors"/>
   <depend package="elektron_monitor"/>
   <depend package="diagnostic_aggregator"/>
