@@ -101,7 +101,7 @@ def laptop_battery_monitor():
         
         #publish
         diag_pub.publish(diag)
-        rospy.sleep(1.0)
+        rospy.sleep(5.0)
 
 
 if __name__ == '__main__':
