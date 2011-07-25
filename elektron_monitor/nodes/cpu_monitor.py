@@ -111,6 +111,37 @@ def cpu_monitor():
             # increase processor number
             id = id + 1
         
+        #
+        # Memory info
+        #
+        
+        p1 = subprocess.Popen("free -m", stdout=subprocess.PIPE)
+        lines = p1.communicate();
+        
+        lines = lines.split("\n")
+        data = lines[1].split()
+        mem_total = data[1]
+        mem_used = data[2]
+        mem_free = data[3]
+        mem_shared = data[4]
+        mem_buffers = data[5]
+        mem_chached = data[6]
+        # Memory info                                                                                                                              
+        stat = diagnostic_msgs.msg.DiagnosticStatus()
+        stat.name = "Memory"
+        stat.level = diagnostic_msgs.msg.DiagnosticStatus.OK
+        stat.message = "OK"
+        
+        stat.values.append(diagnostic_msgs.msg.KeyValue("total", mem_total))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("used", mem_used))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("free", mem_free))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("shared", mem_shared))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("buffers", mem_buffers))
+        stat.values.append(diagnostic_msgs.msg.KeyValue("cached", mem_chached))
+        
+        
+        diag.status.append(stat)
+        
         #publish
         diag_pub.publish(diag)
             
