@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 
 	ros::Subscriber twist_sub = n.subscribe("cmd_vel", 1, &twistCallback);
 
-	ros::Rate loop_rate(100);
+	ros::Rate loop_rate(10);
 
 	std::string dev;
 
