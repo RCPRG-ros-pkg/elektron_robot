@@ -115,7 +115,7 @@ def cpu_monitor():
         # Memory info
         #
         
-        p1 = subprocess.Popen("free -m", stdout=subprocess.PIPE)
+        p1 = subprocess.Popen(["free","-m"], stdout=subprocess.PIPE)
         lines = p1.communicate();
         
         lines = lines.split("\n")
