@@ -116,7 +116,7 @@ def cpu_monitor():
         #
         
         p1 = subprocess.Popen(["free","-m"], stdout=subprocess.PIPE)
-        lines = p1.communicate();
+        lines = p1.communicate()[0]
         
         lines = lines.split("\n")
         data = lines[1].split()
