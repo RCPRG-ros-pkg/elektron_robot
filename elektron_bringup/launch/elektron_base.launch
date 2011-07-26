@@ -9,7 +9,7 @@
 		<param name="dump" type="bool" value="false" />
 
 		<param name="lin_scale" type="double" value="0.9812" />
-		<param name="rot_scale" type="double" value="1.08" />
+		<param name="rot_scale" type="double" value="1.067" />
 	</node>
 	
 	 
