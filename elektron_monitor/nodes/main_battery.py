@@ -42,7 +42,7 @@ class Battery:
 
     def __init__(self):
         # open serial port
-        self.device = rospy.get_param('~device', '/dev/ttyUSB0')
+        self.device = rospy.get_param('~device', '/dev/ttyUSB3')
         self.baud = rospy.get_param('~baud', 9600)
         self.ser = serial.Serial(self.device, self.baud, timeout=2)
         

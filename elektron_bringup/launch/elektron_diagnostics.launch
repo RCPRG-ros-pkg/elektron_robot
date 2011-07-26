@@ -6,6 +6,8 @@
 	
 	<node name="cpu_monitor" pkg="elektron_monitor" type="cpu_monitor.py"/>
 	
+	<node name="main_battery" pkg="elektron_monitor" type="main_battery.py"/>
+	
 	<!-- Prepare diagnostic_aggregator and load it's analyzers -->
 	<node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
 		<rosparam command="load" file="$(find elektron_monitor)/config/diagnostics.yaml" />
