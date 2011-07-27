@@ -94,13 +94,13 @@ class Battery:
             lo = ord(s[1])
             voltage = (hi*256 + lo) * self.adc_factor
             
-            if (voltage < self.lvl_crit) and (rospy.Time.now() - self.last_beep > 60):
+            if (voltage < self.lvl_crit) and (rospy.Time.now() - self.last_beep > rospy.Duration(60)):
                 rospy.logwarn("Critical power level.")
                 self.last_beep = rospy.time.now()
                 if (self.play_music):
                     self.soundhandle.playWave(self.snd_crit)
             else:
-                if (voltage < self.lvl_low) and (rospy.Time.now() - self.last_beep > 180):
+                if (voltage < self.lvl_low) and (rospy.Time.now() - self.last_beep > rospy.Duration(180)):
                     rospy.logwarn("Low power level.")
                     self.last_beep = rospy.time.now()
                     if (self.play_music):
