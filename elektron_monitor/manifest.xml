@@ -11,6 +11,7 @@
 
   <depend package="rospy"/>
   <depend package="diagnostic_msgs"/>
+  <depend package="sound_play"/>
   
 </package>
 
