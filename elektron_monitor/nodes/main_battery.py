@@ -44,7 +44,7 @@ class Battery:
         # open serial port
         self.device = rospy.get_param('~device', '/dev/ttyUSB3')
         self.baud = rospy.get_param('~baud', 9600)
-        self.ser = serial.Serial(self.device, self.baud, timeout=2)
+        self.ser = serial.Serial(self.device, self.baud, timeout=0.3)
         
         self.diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
         

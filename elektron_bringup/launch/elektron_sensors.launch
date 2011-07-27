@@ -8,7 +8,7 @@
 	
 	<!-- Gyroscope module -->
 	<node name="gyro" pkg="elektron_sensors" type="gyroscope.py"> 
-		<param name="device" type="string" value="/dev/ttyUSB2" />
+		<param name="device" type="string" value="/dev/ttyUSB3" />
 		<param name="rot_scale" type="double" value="1.20484" />
 	</node>
 </launch>
