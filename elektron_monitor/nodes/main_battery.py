@@ -38,6 +38,9 @@ import serial
 import math
 
 
+from sound_play.msg import SoundRequest
+from sound_play.libsoundplay import SoundClient
+
 class Battery:
 
     def __init__(self):
@@ -49,6 +52,17 @@ class Battery:
         self.diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
         
         self.adc_factor = 9.34 / 307
+        
+        self.last_beep = rospy.Time.now()
+        self.lvl_low = 20
+        self.lvl_crit = 18
+        
+        self.play_music = rospy.get_param('~play_music', False)
+        
+        if (self.play_music):
+            self.soundhandle = SoundClient()
+            self.snd_low = rospy.get_param('~snd_low', '')
+            self.snd_crit = rospy.get_param('~snd_critical', '')
 
     def spin(self):
 
@@ -77,6 +91,18 @@ class Battery:
             hi = ord(s[0])
             lo = ord(s[1])
             voltage = (hi*256 + lo) * self.adc_factor
+            
+            if (voltage < lvl_crit) and (rospy.Time.now() - self.last_beep > 60):
+                rospy.logwarn("Critical power level.")
+                self.last_beep = rospy.time.now()
+                if (self.play_music):
+                    self.soundhandle.playWave(snd_crit)
+            else:
+                if (voltage < lvl_low) and (rospy.Time.now() - self.last_beep > 180):
+                    rospy.logwarn("Low power level.")
+                    self.last_beep = rospy.time.now()
+                    if (self.play_music):
+                        self.soundhandle.playWave(snd_low)
             
             stat.values.append(diagnostic_msgs.msg.KeyValue("Voltage", str(voltage)))
 
