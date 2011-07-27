@@ -52,6 +52,7 @@ class Battery:
         self.diag_pub = rospy.Publisher('/diagnostics', diagnostic_msgs.msg.DiagnosticArray)
         
         self.adc_factor = 9.34 / 307
+        self.last_voltage = 0.0
         
         self.last_beep = rospy.Time.now()
         self.lvl_low = 20
@@ -63,6 +64,7 @@ class Battery:
             self.soundhandle = SoundClient()
             self.snd_low = rospy.get_param('~snd_low', '')
             self.snd_crit = rospy.get_param('~snd_critical', '')
+            self.snd_charge = rospy.get_param('~snd_critical', '')
 
     def spin(self):
 
@@ -96,14 +98,21 @@ class Battery:
                 rospy.logwarn("Critical power level.")
                 self.last_beep = rospy.time.now()
                 if (self.play_music):
-                    self.soundhandle.playWave(snd_crit)
+                    self.soundhandle.playWave(self.snd_crit)
             else:
                 if (voltage < self.lvl_low) and (rospy.Time.now() - self.last_beep > 180):
                     rospy.logwarn("Low power level.")
                     self.last_beep = rospy.time.now()
                     if (self.play_music):
-                        self.soundhandle.playWave(snd_low)
+                        self.soundhandle.playWave(self.snd_low)
+                        
+            # Just plugged in
+            if (self.last_voltage < 26) and (voltage > 28):
+                rospy.loginfo("Power charger plugged.")
+                if (self.play_music):
+                    self.soundhandle.playWave(self.snd_charge)
             
+            self.last_voltage = voltage
             stat.values.append(diagnostic_msgs.msg.KeyValue("Voltage", str(voltage)))
 
             #append
