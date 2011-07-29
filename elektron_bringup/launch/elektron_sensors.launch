@@ -7,7 +7,7 @@
 		<param name="frame_id" type="string" value="/base_link" />
 	</node>
 	
-	<node name="scan_th" pkg="topic_tools" type="throttle" args="/scan_raw 5 /scan"/>
+	<node name="scan_th" pkg="topic_tools" type="throttle" args="messages /scan_raw 5 /scan"/>
 	
 	<!-- Gyroscope module -->
 	<node name="gyro" pkg="elektron_sensors" type="gyroscope.py"> 
