@@ -13,6 +13,7 @@
   <depend package="elektron_sensors"/>
   <depend package="elektron_monitor"/>
   <depend package="diagnostic_aggregator"/>
+  <depend package="topic_tools"/>
 
 </package>
 
