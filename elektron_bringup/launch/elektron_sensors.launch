@@ -1,6 +1,6 @@
 <launch>
 	<!-- Sick LMS100 laser rangefinder -->
-	<node name="tf_laser_link" pkg="tf" type="static_transform_publisher" args="0.1 0 0.27 0 0 0 base_link base_laser_link 20" />
+	<node name="tf_laser_link" pkg="tf" type="static_transform_publisher" args="0.115 0 0.27 0 0 0 base_link base_laser_link 20" />
 	<node name="base_laser" pkg="LMS1xx" type="LMS100" respawn="true" output="screen">
 		<remap from="scan" to="scan_raw"/>
 		<param name="host" type="string" value="192.168.1.2" />
