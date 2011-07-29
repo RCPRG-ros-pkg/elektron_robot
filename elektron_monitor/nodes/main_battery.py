@@ -64,7 +64,8 @@ class Battery:
             self.soundhandle = SoundClient()
             self.snd_low = rospy.get_param('~snd_low', '')
             self.snd_crit = rospy.get_param('~snd_critical', '')
-            self.snd_charge = rospy.get_param('~snd_critical', '')
+            self.snd_plugin = rospy.get_param('~snd_plugin', '')
+            self.snd_plugout = rospy.get_param('~snd_plugout', '')
 
     def spin(self):
 
@@ -108,9 +109,15 @@ class Battery:
                         
             # Just plugged in
             if (self.last_voltage < 26) and (voltage > 28):
-                rospy.loginfo("Power charger plugged.")
+                rospy.loginfo("Power charger plugged in.")
                 if (self.play_music):
-                    self.soundhandle.playWave(self.snd_charge)
+                    self.soundhandle.playWave(self.snd_plugin)
+            
+            # Just plugged out
+            if (self.last_voltage > 28) and (voltage < 26):
+                rospy.loginfo("Power charger plugged out.")
+                if (self.play_music):
+                    self.soundhandle.playWave(self.snd_plugout)
             
             self.last_voltage = voltage
             stat.values.append(diagnostic_msgs.msg.KeyValue("Voltage", str(voltage)))

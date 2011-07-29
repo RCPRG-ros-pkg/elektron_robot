@@ -6,12 +6,14 @@
 	
 	<node name="cpu_monitor" pkg="elektron_monitor" type="cpu_monitor.py"/>
 	
-	<node name="main_battery" pkg="elektron_monitor" type="main_battery.py">
+	<node name="main_battery" pkg="elektron_monitor" type="main_battery.py" output="screen">
 		<param name="device" type="string" value="/dev/ttyUSB0"/>
 		
 		<param name="play_music" type="bool" value="true"/>
 		<param name="snd_low" value="$(find elektron_monitor)/sound/power_low.wav"/>
 		<param name="snd_critical" value="$(find elektron_monitor)/sound/power_critical.wav"/>
+		<param name="snd_plugin" value="$(find elektron_monitor)/sound/plugin.wav"/>
+		<param name="snd_plugout" value="$(find elektron_monitor)/sound/plugout.wav"/>
 	</node>
 	
 	<!-- Prepare diagnostic_aggregator and load it's analyzers -->
