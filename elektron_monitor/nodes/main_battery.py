@@ -55,8 +55,8 @@ class Battery:
         self.last_voltage = 0.0
         
         self.last_beep = rospy.Time.now()
-        self.lvl_low = 20
-        self.lvl_crit = 18
+        self.lvl_low = 21
+        self.lvl_crit = 19.5
         
         self.play_music = rospy.get_param('~play_music', False)
         
@@ -95,13 +95,13 @@ class Battery:
             lo = ord(s[1])
             voltage = (hi*256 + lo) * self.adc_factor
             
-            if (voltage < self.lvl_crit) and (rospy.Time.now() - self.last_beep > rospy.Duration(60)):
+            if (voltage < self.lvl_crit) and (rospy.Time.now() - self.last_beep > rospy.Duration(30)):
                 rospy.logwarn("Critical power level.")
                 self.last_beep = rospy.Time.now()
                 if (self.play_music):
                     self.soundhandle.playWave(self.snd_crit)
             else:
-                if (voltage < self.lvl_low) and (rospy.Time.now() - self.last_beep > rospy.Duration(180)):
+                if (voltage < self.lvl_low) and (rospy.Time.now() - self.last_beep > rospy.Duration(120)):
                     rospy.logwarn("Low power level.")
                     self.last_beep = rospy.Time.now()
                     if (self.play_music):
