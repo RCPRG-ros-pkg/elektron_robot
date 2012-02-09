@@ -1,7 +1,7 @@
 <stack>
-  <description brief="elektron_robot">elektron_robot</description>
-  <author>Maintained by Konrad Banachowicz</author>
-  <license>GPL,BSD</license>  
+  <description brief="elektron_robot">Elektron mobile robot base nodes</description>
+  <author>Maciej Stefańczyk</author>
+  <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/elektron_robot</url>
   <depend stack="common" /> <!-- xacro -->
