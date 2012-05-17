@@ -1,17 +1,21 @@
 <launch>
 	<!-- Sick LMS100 laser rangefinder -->
-	<node name="tf_laser_link" pkg="tf" type="static_transform_publisher" args="0.115 0 0.27 0 0 0 base_link base_laser_link 20" />
+
+	<node name="tf_laser_link" pkg="tf" type="static_transform_publisher" args="0.11 0 0.22 0 0 0 base_link base_laser_link 20" />
+
 	<node name="base_laser" pkg="LMS1xx" type="LMS100" respawn="true" output="screen">
 		<remap from="scan" to="scan_raw"/>
 		<param name="host" type="string" value="192.168.1.2" />
-		<param name="frame_id" type="string" value="/base_link" />
+		<param name="frame_id" type="string" value="/base_laser_link" />
 	</node>
 	
 	<node name="scan_th" pkg="topic_tools" type="throttle" args="messages /scan_raw 5 /scan"/>
 	
 	<!-- Gyroscope module -->
-	<node name="gyro" pkg="elektron_sensors" type="gyroscope.py"> 
-		<param name="device" type="string" value="/dev/ttyUSB3" />
-		<param name="rot_scale" type="double" value="1.20484" />
-	</node>
+
+<!--	<node name="gyro" pkg="elektron_sensors" type="gyroscope.py"> 		-->
+<!--		<param name="device" type="string" value="/dev/ttyUSB2" />		-->
+<!--		<param name="rot_scale" type="double" value="0.92928" />		-->
+<!--	</node>			-->
+
 </launch>
