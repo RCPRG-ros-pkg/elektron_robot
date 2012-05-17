@@ -93,7 +93,7 @@
 	<xacro:erratic_wheel suffix="right_rear" parent="base_link" reflect="-1" offset="-0.15"	m="100.1"/>
 
 	<joint name="base_laser_joint" type="fixed">
-		<origin rpy="0 0 0" xyz="0.0 0 0.3"/>
+		<origin rpy="0 0 0" xyz="0.14 0 0.3"/>
 		<parent link="base_link"/>
 		<child link="base_laser_link"/>
 	</joint>
