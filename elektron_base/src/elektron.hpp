@@ -1,8 +1,8 @@
 /*
- * elektron.hpp
+ * elektronv2.hpp
  *
- *  Created on: Sep 5, 2009
- *      Author: konradb3
+ *  Created on: May 22, 2012
+ *      Author: mwalecki
  */
 
 #ifndef ELEKTRON_HPP_
@@ -18,6 +18,9 @@
 #include <sys/stat.h>
 #include <string>
 #include <fstream>
+#include <inttypes.h>
+
+#include "nfv2.h"
 
 // baudrate
 #define BAUD B115200
@@ -33,40 +36,17 @@
 #define REGULATOR_RATE 100
 
 // maximum velocity, in internal units
-#define MAX_VEL 550
+#define MAX_VEL 5500
 // number of encoder ticks per single wheel rotation
 #define ENC_TICKS 4000
 
 
-struct tsetvel {
-	int8_t start;
-	int8_t cmd;
-	int16_t lvel;
-	int16_t rvel;
-}__attribute__((__packed__));
 
-struct tsetpid {
-	int16_t p;
-	int16_t i;
-	int16_t d;
-}__attribute__((__packed__));
 
-struct tgetdata {
-
-	int16_t rindex;
-	uint16_t rpos;
-
-	int16_t lindex;
-	uint16_t lpos;
-
-	int16_t rvel;
-	int16_t lvel;
-}__attribute__((__packed__));
-
-class Protonek {
+class Elektron {
 public:
-	Protonek(const std::string& port, int baud = BAUD);
-	~Protonek();
+	Elektron(const std::string& port, int baud = BAUD);
+	~Elektron();
 
 	void update();
 
@@ -77,6 +57,8 @@ public:
 	void getRawOdometry(double &linc, double &rinc);
 	void getOdometry(double &x, double &y, double &a);
 	void setOdometry(double x, double y, double a);
+	
+	void setScale(double ls, double rs);
 
 	bool isConnected();
 
@@ -84,34 +66,27 @@ public:
 	double robot_axle_length;
 	double enc_ticks;
 
-	void dump();
-
-	void setParams(double ls, double rs);
-
 private:
-	// serial port descriptor
+	// #### serial port
+	// ####
 	int fd;
 	struct termios oldtio;
 	bool connected;
-
-	tsetvel setvel;
-	tgetdata getdata;
-
-	double llpos;
-	double lrpos;
-
-	double xpos;
-	double ypos;
-	double apos;
-
-	bool odom_initialized;
-
-	int32_t old_lpos, old_rpos;
-
-	std::ofstream of;
-
-	bool _dump;
-
+	
+	// #### NFv2
+	// ####
+	void addToCommandArray(uint8_t command);
+	void clearCommandArray(void);
+    uint8_t txBuf[256];
+    uint8_t txCnt;
+    uint8_t rxBuf[256];
+    uint8_t rxCnt;
+    uint8_t commandArray[256];
+    uint8_t commandCnt;
+    uint8_t txAddr;
+    
+    // #### Elektron params
+    // ####
 	double lin_scale;
 	double rot_scale;
 };

@@ -1,8 +1,8 @@
 /*
- * elektron.cpp
+ * elektronv2.cpp
  *
- *  Created on: Sep 5, 2009
- *      Author: konradb3
+ *  Created on: May 22, 2012
+ *      Author: mwalecki
  */
 
 #include <math.h>
@@ -13,9 +13,12 @@
 #include <cstring>
 #include <iostream>
 
-#include "elektron.hpp"
+#include "elektronv2.hpp"
 
 using namespace std;
+
+NF_STRUCT_ComBuf	NFComBuf;
+uint8_t             crcTable[256];
 
 double ang_nor_rad(double rad) {
 	static double TWO_PI = 2.0 * M_PI;
@@ -29,29 +32,27 @@ double ang_nor_rad(double rad) {
 	}
 }
 
-Protonek::Protonek(const std::string& port, int baud) {
+Elektron::Elektron(const std::string& port, int baud) {
 	connected = false;
+	
+    crcInit();
+    
+    this->txAddr = NF_RobotAddress;
+    NFComBuf.myAddress = NF_TerminalAddress;
+    NFComBuf.ReadDeviceVitals.addr[0] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[1] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[2] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[3] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[4] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[5] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[6] = NF_RobotAddress;
+    NFComBuf.ReadDeviceVitals.addr[7] = NF_RobotAddress;
+    NFComBuf.SetDrivesMode.addr[0] = NF_RobotAddress;
+    NFComBuf.SetDrivesMode.addr[1] = NF_RobotAddress;
+    NFComBuf.SetDrivesSpeed.addr[0] = NF_RobotAddress;
+    NFComBuf.SetDrivesSpeed.addr[1] = NF_RobotAddress;
+    NFComBuf.SetDigitalOutputs.addr[0] = NF_RobotAddress;
 
-	llpos = 0;
-	lrpos = 0;
-
-	xpos = 0;
-	ypos = 0;
-	apos = 0;
-
-	setvel.start = 'x';
-	setvel.cmd = 'a';
-	setvel.lvel = 0;
-	setvel.rvel = 0;
-
-	odom_initialized = false;
-
-	robot_axle_length = AXLE_LENGTH;
-	m_per_tick = M_PI * WHEEL_DIAM / ENC_TICKS;
-	enc_ticks = ENC_TICKS;
-
-	lin_scale = 1.0;
-	rot_scale = 1.0;
 
 	fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd >= 0) {
@@ -76,55 +77,62 @@ Protonek::Protonek(const std::string& port, int baud) {
 		tcsetattr(fd, TCSANOW, &newtio);
 		connected = true;
 	}
-
-	_dump = false;
 }
 
-Protonek::~Protonek() {
+Elektron::~Elektron() {
 	// restore old port settings
 	if (fd > 0)
 		tcsetattr(fd, TCSANOW, &oldtio);
 	close(fd);
 }
 
-void Protonek::setParams(double ls, double rs) {
-	lin_scale = ls;
-	rot_scale = rs;
-}
+void Elektron::update() {
 
-void Protonek::dump() {
-	_dump = true;
-	of.open("/tmp/odom_dump.txt");
-	of << "lpos;lindex;rpos;rindex;lvel;rvel;apos;xpos;ypos\n";
-}
-
-void Protonek::update() {
-	unsigned int ret = 0;
+	if(commandCnt == 0){
+		cout << "No data to send" << endl;
+		return;
+	}
+	
+    txCnt = NF_MakeCommandFrame(txBuf, commandArray, commandCnt, txAddr);
+    clearCommandArray();
+    
 	tcflush(fd, TCIFLUSH);
-	write(fd, &setvel, sizeof(setvel));
+	write(fd, txBuf, txCnt);
 
-	while (ret < sizeof(getdata))
-		ret += read(fd, ((char*) &getdata) + ret, sizeof(getdata) - ret);
+//	while (ret < sizeof(getdata))
+//		ret += read(fd, ((char*) &getdata) + ret, sizeof(getdata) - ret);
 
 }
 
-void Protonek::setVelocity(double lvel, double rvel) {
-	setvel.lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1); // Convert SI units to internal units
-	setvel.rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1);
+void Elektron::setVelocity(double lvel, double rvel) {
+	lvel = (int16_t)(lvel * (1 / m_per_tick) * 0.1); // Convert SI units to internal units
+	rvel = (int16_t)(rvel * (1 / m_per_tick) * 0.1);
 
-	if (setvel.rvel > MAX_VEL)
-		setvel.rvel = MAX_VEL;
-	else if (setvel.rvel < -MAX_VEL)
-		setvel.rvel = -MAX_VEL;
+	if (rvel > MAX_VEL)
+		rvel = MAX_VEL;
+	else if (rvel < -MAX_VEL)
+		rvel = -MAX_VEL;
 
-	if (setvel.lvel > MAX_VEL)
-		setvel.lvel = MAX_VEL;
-	else if (setvel.lvel < -MAX_VEL)
-		setvel.lvel = -MAX_VEL;
+	if (lvel > MAX_VEL)
+		lvel = MAX_VEL;
+	else if (lvel < -MAX_VEL)
+		lvel = -MAX_VEL;
+		
+	NFComBuf.SetDrivesSpeed.data[0] = lvel;
+	NFComBuf.SetDrivesSpeed.data[1] = rvel;
+	
+	addToCommandArray(NF_COMMAND_SetDrivesSpeed);
+	
+	NFComBuf.SetDrivesMode.data[0] = NF_DrivesMode_SPEED;
+	NFComBuf.SetDrivesMode.data[1] = NF_DrivesMode_SPEED;
+	
+	addToCommandArray(NF_COMMAND_SetDrivesMode);
+	
+	cout << "set Velocity" << endl;
 }
 
-void Protonek::getVelocity(double &xvel, double &thvel) {
-	static int maxl = 0, maxr = 0;
+void Elektron::getVelocity(double &xvel, double &thvel) {
+/*	static int maxl = 0, maxr = 0;
 	double lvel = (double) (getdata.lvel) * m_per_tick * 10;
 	double rvel = (double) (getdata.rvel) * m_per_tick * 10;
 
@@ -133,67 +141,30 @@ void Protonek::getVelocity(double &xvel, double &thvel) {
 
 	//std::cout << maxl << " " << maxr << "\n";
 	xvel = (lvel + rvel) * 0.5;
-	thvel = (lvel - rvel) / AXLE_LENGTH;
+	thvel = (lvel - rvel) / AXLE_LENGTH;*/
 }
 
-void Protonek::updateOdometry() {
-
-	//std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
-
-	//std::cout << "vel: " << getdata.lvel << " " << getdata.rvel << "\n";
-
-	double lpos = getdata.lpos + enc_ticks * getdata.lindex;
-	double rpos = getdata.rpos + enc_ticks * getdata.rindex;
-
-
-
-	double linc = (double) (llpos - lpos) * m_per_tick * lin_scale;
-	double rinc = (double) (lrpos - rpos) * m_per_tick * lin_scale;
-	//std::cout << "linc: " << (llpos - lpos) << ", rinc: " << (lrpos - rpos) << "\n";
-
-	llpos = lpos;
-	lrpos = rpos;
-	if (odom_initialized == true) {
-		apos -= (linc - rinc) / robot_axle_length * rot_scale;
-		apos = ang_nor_rad(apos);
-		double dist = (rinc + linc) / 2;
-
-		xpos += dist * cos(apos);
-		ypos += dist * sin(apos);
-
-		if (_dump) {
-			of << getdata.lpos << ";" << getdata.lindex << ";" << getdata.rpos << ";" << getdata.rindex << ";" 
-				<< getdata.lvel << ";" << getdata.rvel << ";"
-				<< apos << ";" << xpos << ";" << ypos << "\n";				
-		}
-	} else
-		odom_initialized = true;
-
+void Elektron::setScale(double ls, double rs) {
+	lin_scale = ls;
+	rot_scale = rs;
 }
 
-void Protonek::getOdometry(double &x, double &y, double &a) {
-	x = xpos;
-	y = ypos;
-	a = apos;
-}
-
-void Protonek::setOdometry(double x, double y, double a) {
-	xpos = x;
-	ypos = y;
-	apos = a;
-}
-
-void Protonek::getRawOdometry(double &linc, double &rinc) {
-	int lpos = getdata.lpos + getdata.lindex * enc_ticks;
-	int rpos = getdata.rpos + getdata.rindex * enc_ticks;
-
-	linc = (lpos - llpos) * m_per_tick;
-	rinc = (rpos - lrpos) * m_per_tick;
-
-	llpos = lpos;
-	lrpos = rpos;
-}
-
-bool Protonek::isConnected() {
+bool Elektron::isConnected() {
 	return connected;
 }
+
+void Elektron::addToCommandArray(uint8_t command){
+	commandArray[commandCnt++] = command;
+}
+
+void Elektron::clearCommandArray(void){
+	commandCnt = 0;
+}
+
+
+
+
+
+
+
+
