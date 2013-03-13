@@ -1,0 +1,3 @@
+apps:
+ - display: Joystick Teleop
+   app: elektron_teleop/teleop_joy

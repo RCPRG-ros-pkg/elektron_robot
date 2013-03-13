@@ -1,0 +1,11 @@
+<launch>
+  <param name="robot/name" value="$(optenv ROBOT elekasdfff)"/>
+  <param name="robot/type" value="elektron"/>
+  <param name="robot/host" value="elektron1.ia.pw.edu.pl"/>
+
+  <node pkg="app_manager" type="appmaster" name="appmaster" args="-p 11312"/>
+
+  <node pkg="app_manager" type="app_manager" name="app_manager" args="--applist $(find elektron_bringup)/mock_apps" output="screen">
+        <param name="interface_master" value="http://localhost:11312"/>
+  </node>
+</launch>
