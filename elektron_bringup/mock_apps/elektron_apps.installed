@@ -1,3 +1,5 @@
 apps:
  - display: Joystick Teleop
-   app: elektron_teleop/teleop_joy
+   app: elektron_core_apps/teleop_f710
+ - display: Laser Avoid
+   app: elektron_core_apps/laser_avoid
