@@ -1,0 +1,19 @@
+<launch>
+	<!-- send elektron.xml to param server -->
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find elektron_defs)/robots/elektron.udrf.xacro'" />
+<!--	<node name="tf_base_footprint" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_footprint base_link 20" />
+-->
+	<!-- load base controller -->
+	<node name="elektron" pkg="elektron_base" type="elektron_base_node" respawn="true" output="screen">
+		<param name="device" type="string" value="/dev/protonek" />
+		<param name="dump" type="bool" value="false" />
+
+		<param name="lin_scale" type="double" value="0.9812" />
+		<param name="rot_scale" type="double" value="0.70" />
+
+		<param name="publish_odom_tf" type="bool" value="false" />
+
+	</node>
+	
+	 
+</launch>

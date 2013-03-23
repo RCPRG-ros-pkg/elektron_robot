@@ -1,0 +1,7 @@
+<launch>
+	
+	<include file="$(find elektron_bringup)/launch/elektron_base.launch" />
+	<include file="$(find elektron_bringup)/launch/elektron_sensors.launch" />        
+	<include file="$(find elektron_bringup)/launch/app_manager.launch" />
+
+</launch>
