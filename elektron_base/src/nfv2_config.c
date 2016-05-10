@@ -22,7 +22,9 @@ void NFv2_Config(NF_STRUCT_ComBuf *NFComBuf, uint8_t myAddress){
 	NFComBuf->SetDrivesSpeed.addr[0] = NF_RobotAddress;
 	NFComBuf->SetDrivesSpeed.addr[1] = NF_RobotAddress;
 	NFComBuf->SetDigitalOutputs.addr[0] = NF_RobotAddress;
-	
+
+	NFComBuf->ReadDrivesPosition.addr[0] = NF_RobotAddress;
+	NFComBuf->ReadDrivesPosition.addr[1] = NF_RobotAddress;
 	
 	NFv2_CrcInit();
 }
